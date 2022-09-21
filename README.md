@@ -9,7 +9,7 @@
 - TailWind
 
 ## Todo
-
+- [x] Host it
 - [x] Write UI
 - [ ] Make it work
   - [ ] Addition
