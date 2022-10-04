@@ -29,6 +29,11 @@ export const Calculator = () => {
   const handleSpecial = (specialSign: string) => {
     if (specialSign === "DEL") {
       setDigits((oldDigitsState) => oldDigitsState.slice(0, -1));
+      return;
+    }
+    if (specialSign === "C") {
+      setDigits([]);
+      return;
     }
   };
 
