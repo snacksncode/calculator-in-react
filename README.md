@@ -11,7 +11,7 @@
 ## Todo
 - [x] Host it
 - [x] Write UI
-- [ ] Make it work
+- [x] Make it work
   - [ ] Addition
   - [ ] Subtraction
   - [ ] Multiplication
