@@ -1,58 +1,109 @@
-import { useEffect, useState } from "react";
-import { Display } from "./Display";
-import { CalculatorButtons } from "./CalculatorButtons";
-import { EasterEggs, useEasterEggs } from "../hooks/useEasterEggs";
-import { DIGITS, OPERATORS, SPECIAL } from "../constants/calculator";
-import { SECRET_STRING } from "../constants/easter-eggs";
+import { useState } from "react";
+import { DIGITS, OPERATORS, SPECIAL } from "@/constants/calculator";
+import { EasterEggs, useEasterEggs } from "@/hooks/useEasterEggs";
+import { CalculatorButtons } from "@/components/CalculatorButtons";
+import { Display } from "@/components/Display";
 
 export const Calculator = () => {
-  // Visual State
-  const [mainDisplayValue, setMainDisplayValue] = useState<string | null>(null);
-  const [topDisplayValue, setTopDisplayValue] = useState<string | null>(null);
-  // Actual calculator logic/state
-  const [digits, setDigits] = useState<string[]>([]);
-  const [answer, setAnswer] = useState<number | null>(null);
-  // Easter Eggs
-  const { easterEgg, checkForEasterEgg, reset: resetEasterEgg } = useEasterEggs({ value: mainDisplayValue });
+  const [firstNumber, setFirstNumber] = useState("0");
+  const [secondNumber, setSecondNumber] = useState<string | null>(null);
+  const [answer, setAnswer] = useState<string | null>(null);
+  const [operator, setOperator] = useState<string | null>(null);
+  const { easterEgg, checkForEasterEgg, reset: resetEasterEgg } = useEasterEggs({ value: firstNumber });
 
-  useEffect(() => {
-    const allDigitsCombined = digits.join("");
-    setMainDisplayValue(allDigitsCombined || "0");
-  }, [digits]);
-
-  useEffect(() => {
-    if (easterEgg === EasterEggs.SECRET_STRING) {
-      setMainDisplayValue(SECRET_STRING);
+  const calculate = () => {
+    switch (operator) {
+      case "+": {
+        setAnswer(String(Number(firstNumber) + Number(secondNumber)));
+        break;
+      }
+      case "-": {
+        setAnswer(String(Number(firstNumber) - Number(secondNumber)));
+        break;
+      }
+      case "/": {
+        setAnswer(String(Number(firstNumber) / Number(secondNumber)));
+        break;
+      }
+      case "*": {
+        setAnswer(String(Number(firstNumber) * Number(secondNumber)));
+        break;
+      }
     }
-  }, [easterEgg]);
+  };
 
   const handleOperator = (operator: string) => {
-    console.warn("Not implemented");
+    if (secondNumber != null) return;
+    setOperator(operator);
   };
 
   const handleDigit = (digit: string) => {
-    setDigits((oldDigitsState) => {
-      return [...oldDigitsState, digit];
+    if (answer != null) return;
+    if (!operator) {
+      return setFirstNumber((prev) => {
+        if (prev === "0" && digit === "0") return "0";
+        if (prev === "0") return digit;
+        return `${prev}${digit}`;
+      });
+    }
+    setSecondNumber((prev) => {
+      if (prev == null) return digit;
+      if (prev === "0" && digit === "0") return "0";
+      return `${prev}${digit}`;
+    });
+  };
+
+  const handleDot = () => {
+    if (answer != null || firstNumber == null) return;
+    if (!operator) {
+      if (firstNumber.includes(".")) return null;
+      return setFirstNumber((prev) => {
+        return prev + ".";
+      });
+    }
+    if (secondNumber != null && secondNumber.includes(".")) return null;
+    setSecondNumber((prev) => {
+      return prev + ".";
     });
   };
 
   const handleSpecial = (specialSign: string) => {
     if (specialSign === "DEL") {
-      setDigits((oldDigitsState) => oldDigitsState.slice(0, -1));
-      return;
+      if (answer != null) return;
+      if (secondNumber != null) {
+        return setSecondNumber((prev) => {
+          if (prev == null) return null;
+          return prev.slice(0, -1);
+        });
+      }
+
+      if (operator != null) {
+        return setOperator(null);
+      }
+      return setFirstNumber((prev) => {
+        if (prev.length === 1) return "0";
+        return prev.slice(0, -1);
+      });
+    }
+    if (specialSign === ".") {
+      return handleDot();
     }
     if (specialSign === "C") {
-      setDigits([]);
-      return;
+      return reset();
     }
     if (specialSign === "=") {
-      checkForEasterEgg();
+      const isEasterEgg = checkForEasterEgg();
+      if (isEasterEgg || secondNumber == null) return;
+      calculate();
     }
   };
 
   const reset = () => {
     resetEasterEgg();
-    setDigits([]);
+    setFirstNumber("0");
+    setSecondNumber(null);
+    setOperator(null);
+    setAnswer(null);
   };
 
   const handleCalculatorButtonClick = (value: string) => {
@@ -76,8 +127,14 @@ export const Calculator = () => {
   };
 
   return (
-    <div className="flex min-w-[300px] min-h-[450px] flex-col p-5 bg-slate-50 shadow-2xl rounded-2xl">
-      <Display mainValue={mainDisplayValue} topValue={topDisplayValue} easterEgg={easterEgg} />
+    <div className="flex w-[300px] min-h-[450px] flex-col p-5 bg-slate-50 shadow-2xl rounded-2xl">
+      <Display
+        firstNumber={firstNumber}
+        secondNumber={secondNumber}
+        answer={answer}
+        operator={operator}
+        easterEgg={easterEgg}
+      />
       <CalculatorButtons afterClick={handleCalculatorButtonClick} />
     </div>
   );

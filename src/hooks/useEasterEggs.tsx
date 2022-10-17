@@ -18,10 +18,14 @@ export const useEasterEggs = ({ value }: Props) => {
     switch (value) {
       case SECRET_STRING_TRIGGER: {
         setEasterEgg(EasterEggs.SECRET_STRING);
-        break;
+        return true;
       }
       case GREEN_TRIGGER: {
         setEasterEgg(EasterEggs.GREEN);
+        return true;
+      }
+      default: {
+        return false;
       }
     }
   };
