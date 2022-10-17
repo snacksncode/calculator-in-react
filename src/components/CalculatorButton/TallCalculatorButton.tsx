@@ -6,7 +6,7 @@ interface Props {
 }
 
 export const TallCalculatorButton = ({ value, afterClick }: Props) => {
-  const handleButtonClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+  const handleButtonClick: React.MouseEventHandler<HTMLButtonElement> = (_e) => {
     afterClick(value);
   };
 
