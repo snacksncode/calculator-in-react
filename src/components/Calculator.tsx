@@ -10,7 +10,32 @@ export const Calculator = () => {
   const [secondNumber, setSecondNumber] = useState<string | null>(null);
   const [answer, setAnswer] = useState<string | null>(null);
   const [operator, setOperator] = useState<string | null>(null);
+  const [pressedKeys, setPressedKeys] = useState<string[]>([]);
   const { easterEgg, checkForEasterEgg, reset: resetEasterEgg } = useEasterEggs({ value: firstNumber });
+
+  const updatePressedKeys = ({ key, action }: { key: string; action: "add" | "remove" }) => {
+    if (action === "add") {
+      setPressedKeys((prevKeys) => [...prevKeys, key]);
+      return;
+    }
+    setTimeout(() => {
+      setPressedKeys((prevKeys) => prevKeys.filter((k) => k != key));
+    }, 75);
+  };
+
+  useEventListener("keyup", (e) => {
+    if (!(e instanceof KeyboardEvent)) return;
+    let pressedKey = e.key;
+    const replace: Record<string, string> = {
+      Backspace: "DEL",
+      Enter: "=",
+      c: "C",
+    };
+    if (pressedKey in replace) {
+      pressedKey = replace[pressedKey];
+    }
+    updatePressedKeys({ key: pressedKey, action: "remove" });
+  });
 
   useEventListener("keydown", (e) => {
     if (!(e instanceof KeyboardEvent)) return;
@@ -23,6 +48,7 @@ export const Calculator = () => {
     if (pressedKey in replace) {
       pressedKey = replace[pressedKey];
     }
+    updatePressedKeys({ key: pressedKey, action: "add" });
     handleCalculatorButtonClick(pressedKey);
   });
 
@@ -150,7 +176,7 @@ export const Calculator = () => {
         operator={operator}
         easterEgg={easterEgg}
       />
-      <CalculatorButtons afterClick={handleCalculatorButtonClick} />
+      <CalculatorButtons afterClick={handleCalculatorButtonClick} pressedKeys={pressedKeys} />
     </div>
   );
 };

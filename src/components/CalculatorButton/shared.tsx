@@ -16,4 +16,4 @@ export const formatValue = (value: string) => {
 };
 
 export const buttonClasses =
-  "p-3 text-2xl transition-colors focus-visible:bg-blue-300 focus-visible:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dashed focus-visible:outline-blue-300 hover:bg-blue-300 hover:text-white overflow-hidden font-medium max-w-full overflow-ellipsis flex items-center justify-center rounded";
+  "p-3 text-2xl transition-colors duration-150 focus-visible:bg-blue-300 focus-visible:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dashed focus-visible:outline-blue-300 hover:bg-blue-300 hover:text-white overflow-hidden font-medium max-w-full overflow-ellipsis flex items-center justify-center rounded";
