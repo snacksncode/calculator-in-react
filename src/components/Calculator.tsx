@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { DIGITS, OPERATORS, SPECIAL } from "@/constants/calculator";
+import { useEventListener } from "usehooks-ts";
 import { EasterEggs, useEasterEggs } from "@/hooks/useEasterEggs";
 import { CalculatorButtons } from "@/components/CalculatorButtons";
 import { Display } from "@/components/Display";
@@ -10,6 +11,20 @@ export const Calculator = () => {
   const [answer, setAnswer] = useState<string | null>(null);
   const [operator, setOperator] = useState<string | null>(null);
   const { easterEgg, checkForEasterEgg, reset: resetEasterEgg } = useEasterEggs({ value: firstNumber });
+
+  useEventListener("keydown", (e) => {
+    if (!(e instanceof KeyboardEvent)) return;
+    let pressedKey = e.key;
+    const replace: Record<string, string> = {
+      Backspace: "DEL",
+      Enter: "=",
+      c: "C",
+    };
+    if (pressedKey in replace) {
+      pressedKey = replace[pressedKey];
+    }
+    handleCalculatorButtonClick(pressedKey);
+  });
 
   const calculate = () => {
     switch (operator) {
