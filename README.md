@@ -9,16 +9,18 @@
 - TailWind
 
 ## Todo
+
 - [x] Host it
 - [x] Write UI
 - [x] Make it work
-  - [ ] Addition
-  - [ ] Subtraction
-  - [ ] Multiplication
-  - [ ] Division
-  - [ ] Equals
-  - [ ] All Clear
-  - [ ] Dot Operator
+  - [x] Addition
+  - [x] Subtraction
+  - [x] Multiplication
+  - [x] Division
+  - [x] Equals
+  - [x] All Clear
+  - [x] Dot Operator
   - [ ] Percentage Operator
-  - [ ] Delete
+  - [x] Delete
+  - [x] Work with the answer instead of locking up
 - [ ] Add animations using framer-motion
