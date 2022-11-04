@@ -23,4 +23,7 @@
   - [ ] Percentage Operator
   - [x] Delete
   - [x] Work with the answer instead of locking up
+- [ ] History of operations
+  - [ ] Record history of operations
+  - [ ] Allow user to see it and interact with it (time travel)
 - [ ] Add animations using framer-motion
