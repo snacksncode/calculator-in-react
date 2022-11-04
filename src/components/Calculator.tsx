@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DIGITS, OPERATORS, SPECIAL } from "@/constants/calculator";
 import { useEventListener } from "usehooks-ts";
-import { EasterEggs, useEasterEggs } from "@/hooks/useEasterEggs";
+import { useEasterEggs } from "@/hooks/useEasterEggs";
 import { CalculatorButtons } from "@/components/CalculatorButtons";
 import { Display } from "@/components/Display";
 
@@ -11,7 +11,11 @@ export const Calculator = () => {
   const [answer, setAnswer] = useState<string | null>(null);
   const [operator, setOperator] = useState<string | null>(null);
   const [pressedKeys, setPressedKeys] = useState<string[]>([]);
-  const { easterEgg, checkForEasterEgg, reset: resetEasterEgg } = useEasterEggs({ value: firstNumber });
+  const { easterEgg, checkForEasterEgg } = useEasterEggs({ value: answer });
+
+  useEffect(() => {
+    checkForEasterEgg();
+  }, [answer, checkForEasterEgg]);
 
   const updatePressedKeys = ({ key, action }: { key: string; action: "add" | "remove" }) => {
     if (action === "add") {
@@ -74,12 +78,28 @@ export const Calculator = () => {
   };
 
   const handleOperator = (operator: string) => {
+    if (answer != null) {
+      setAnswer(null);
+      setSecondNumber(null);
+      setOperator(operator);
+      setFirstNumber(answer);
+      return;
+    }
     if (secondNumber != null) return;
     setOperator(operator);
   };
 
   const handleDigit = (digit: string) => {
-    if (answer != null) return;
+    if (answer != null) {
+      setAnswer(null);
+      setSecondNumber(null);
+      setOperator(null);
+      setFirstNumber(() => {
+        if (answer === "0") return digit;
+        return answer + digit;
+      });
+      return;
+    }
     if (!operator) {
       return setFirstNumber((prev) => {
         if (prev === "0" && digit === "0") return "0";
@@ -95,7 +115,16 @@ export const Calculator = () => {
   };
 
   const handleDot = () => {
-    if (answer != null || firstNumber == null) return;
+    if (answer != null) {
+      if (answer.includes(".")) return;
+      setAnswer(null);
+      setSecondNumber(null);
+      setOperator(null);
+      setFirstNumber(() => {
+        return answer + ".";
+      });
+      return;
+    }
     if (!operator) {
       if (firstNumber.includes(".")) return null;
       return setFirstNumber((prev) => {
@@ -110,7 +139,17 @@ export const Calculator = () => {
 
   const handleSpecial = (specialSign: string) => {
     if (specialSign === "DEL") {
-      if (answer != null) return;
+      if (answer != null) {
+        setAnswer(null);
+        setSecondNumber(null);
+        setOperator(null);
+        setFirstNumber(() => {
+          if (answer === "0") return "0";
+          return answer.slice(0, -1);
+        });
+        return;
+      }
+
       if (secondNumber != null) {
         return setSecondNumber((prev) => {
           if (prev == null) return null;
@@ -121,6 +160,7 @@ export const Calculator = () => {
       if (operator != null) {
         return setOperator(null);
       }
+
       return setFirstNumber((prev) => {
         if (prev.length === 1) return "0";
         return prev.slice(0, -1);
@@ -133,14 +173,13 @@ export const Calculator = () => {
       return reset();
     }
     if (specialSign === "=") {
-      const isEasterEgg = checkForEasterEgg();
-      if (isEasterEgg || secondNumber == null) return;
+      if (secondNumber == null) return;
       calculate();
     }
   };
 
   const reset = () => {
-    resetEasterEgg();
+    // resetEasterEgg();
     setFirstNumber("0");
     setSecondNumber(null);
     setOperator(null);
@@ -148,9 +187,9 @@ export const Calculator = () => {
   };
 
   const handleCalculatorButtonClick = (value: string) => {
-    if (easterEgg !== EasterEggs.NONE) {
-      reset();
-    }
+    // if (easterEgg !== EasterEggs.NONE) {
+    //   reset();
+    // }
     if (DIGITS.includes(value)) {
       handleDigit(value);
       return;
