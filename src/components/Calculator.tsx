@@ -4,6 +4,7 @@ import { useEventListener } from "usehooks-ts";
 import { useEasterEggs } from "@/hooks/useEasterEggs";
 import { CalculatorButtons } from "@/components/CalculatorButtons";
 import { Display } from "@/components/Display";
+import { History } from "@/types/calculator";
 
 export const Calculator = () => {
   const [firstNumber, setFirstNumber] = useState("0");
@@ -12,6 +13,7 @@ export const Calculator = () => {
   const [operator, setOperator] = useState<string | null>(null);
   const [pressedKeys, setPressedKeys] = useState<string[]>([]);
   const { easterEgg, checkForEasterEgg } = useEasterEggs({ value: answer });
+  const [history, setHistory] = useState<History[]>([]);
 
   useEffect(() => {
     checkForEasterEgg();
@@ -57,24 +59,37 @@ export const Calculator = () => {
   });
 
   const calculate = () => {
+    let answer: string | null = null;
     switch (operator) {
       case "+": {
-        setAnswer(String(Number(firstNumber) + Number(secondNumber)));
+        answer = String(Number(firstNumber) + Number(secondNumber));
         break;
       }
       case "-": {
-        setAnswer(String(Number(firstNumber) - Number(secondNumber)));
+        answer = String(Number(firstNumber) - Number(secondNumber));
         break;
       }
       case "/": {
-        setAnswer(String(Number(firstNumber) / Number(secondNumber)));
+        answer = String(Number(firstNumber) / Number(secondNumber));
         break;
       }
       case "*": {
-        setAnswer(String(Number(firstNumber) * Number(secondNumber)));
+        answer = String(Number(firstNumber) * Number(secondNumber));
         break;
       }
     }
+    setAnswer(answer);
+    setHistory((oldHistory) => {
+      return [
+        ...oldHistory,
+        {
+          answer: answer as string,
+          firstNumber: firstNumber as string,
+          secondNumber: secondNumber as string,
+          operator: operator as string,
+        },
+      ];
+    });
   };
 
   const handleOperator = (operator: string) => {
@@ -173,7 +188,7 @@ export const Calculator = () => {
       return reset();
     }
     if (specialSign === "=") {
-      if (secondNumber == null) return;
+      if (secondNumber == null || answer != null) return;
       calculate();
     }
   };
@@ -207,15 +222,21 @@ export const Calculator = () => {
   };
 
   return (
-    <div className="flex w-[300px] min-h-[450px] flex-col p-5 bg-slate-50 shadow-2xl rounded-2xl">
-      <Display
-        firstNumber={firstNumber}
-        secondNumber={secondNumber}
-        answer={answer}
-        operator={operator}
-        easterEgg={easterEgg}
-      />
-      <CalculatorButtons afterClick={handleCalculatorButtonClick} pressedKeys={pressedKeys} />
-    </div>
+    <>
+      <div className="flex w-[300px] min-h-[450px] flex-col p-5 bg-slate-50 shadow-2xl rounded-2xl">
+        <Display
+          firstNumber={firstNumber}
+          secondNumber={secondNumber}
+          answer={answer}
+          operator={operator}
+          easterEgg={easterEgg}
+        />
+        <CalculatorButtons afterClick={handleCalculatorButtonClick} pressedKeys={pressedKeys} />
+      </div>
+      <pre className="text-slate-900 text-xs ml-4">
+        <p>History</p>
+        <code>{JSON.stringify(history, null, 2)}</code>
+      </pre>
+    </>
   );
 };

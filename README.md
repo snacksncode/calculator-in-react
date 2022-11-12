@@ -27,3 +27,4 @@
   - [ ] Record history of operations
   - [ ] Allow user to see it and interact with it (time travel)
 - [ ] Add animations using framer-motion
+- [ ] Add themes
