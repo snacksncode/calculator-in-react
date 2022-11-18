@@ -2,7 +2,7 @@ import { Calculator } from "./Calculator";
 
 export const App = () => {
   return (
-    <div className="min-h-screen text-slate-50 flex items-center justify-center h-full bg-gradient-to-br from-orange-200 to-red-200">
+    <div className="bg-gradient-to-br from-[#e0c3fc] to-[#8ec5fc] min-h-screen text-slate-50 flex items-center justify-center h-full ">
       <Calculator />
     </div>
   );

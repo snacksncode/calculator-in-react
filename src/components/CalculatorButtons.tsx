@@ -8,7 +8,7 @@ interface Props {
 
 export const CalculatorButtons = ({ afterClick, pressedKeys }: Props) => {
   return (
-    <div className="grid flex-1 gap-2 mt-8 grid-cols-4 grid-rows-5">
+    <div className="grid bg-slate-50 p-5 rounded-t-3xl gap-2 grid-cols-4 grid-rows-5">
       <CalculatorButton afterClick={afterClick} pressedKeys={pressedKeys} value="C" />
       <CalculatorButton afterClick={afterClick} pressedKeys={pressedKeys} value="/" />
       <CalculatorButton afterClick={afterClick} pressedKeys={pressedKeys} value="*" />

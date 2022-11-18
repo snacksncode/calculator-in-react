@@ -5,6 +5,7 @@ import { useEasterEggs } from "@/hooks/useEasterEggs";
 import { CalculatorButtons } from "@/components/CalculatorButtons";
 import { Display } from "@/components/Display";
 import { History } from "@/types/calculator";
+import * as Tooltip from "@radix-ui/react-tooltip";
 
 export const Calculator = () => {
   const [firstNumber, setFirstNumber] = useState("0");
@@ -222,21 +223,42 @@ export const Calculator = () => {
   };
 
   return (
-    <>
-      <div className="flex w-[300px] min-h-[450px] flex-col p-5 bg-slate-50 shadow-2xl rounded-2xl">
-        <Display
-          firstNumber={firstNumber}
-          secondNumber={secondNumber}
-          answer={answer}
-          operator={operator}
-          easterEgg={easterEgg}
-        />
-        <CalculatorButtons afterClick={handleCalculatorButtonClick} pressedKeys={pressedKeys} />
-      </div>
-      <pre className="text-slate-900 text-xs ml-4">
-        <p>History</p>
-        <code>{JSON.stringify(history, null, 2)}</code>
-      </pre>
-    </>
+    <div className="flex w-[20rem] min-w-[20rem] min-h-[600px] flex-col bg-white shadow-2xl rounded-2xl overflow-hidden">
+      <Tooltip.Provider>
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <button className="text-xs bg-slate-100 gap-1 mt-2 self-center flex items-center justify-center px-4 py-1 rounded-full text-slate-900">
+              History
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                <path
+                  fillRule="evenodd"
+                  d="M10 5a.75.75 0 01.75.75v6.638l1.96-2.158a.75.75 0 111.08 1.04l-3.25 3.5a.75.75 0 01-1.08 0l-3.25-3.5a.75.75 0 111.08-1.04l1.96 2.158V5.75A.75.75 0 0110 5z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Content
+              className="bg-slate-900 text-white rounded-full px-4 py-2 text-sm leading-none"
+              sideOffset={5}
+              side="bottom"
+            >
+              Click to see past calculations
+              <Tooltip.Arrow className="fill-slate-900" />
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      </Tooltip.Provider>
+
+      <Display
+        firstNumber={firstNumber}
+        secondNumber={secondNumber}
+        answer={answer}
+        operator={operator}
+        easterEgg={easterEgg}
+      />
+      <CalculatorButtons afterClick={handleCalculatorButtonClick} pressedKeys={pressedKeys} />
+    </div>
   );
 };
