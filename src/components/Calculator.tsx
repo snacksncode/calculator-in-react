@@ -20,28 +20,10 @@ export const Calculator = () => {
     checkForEasterEgg();
   }, [answer, checkForEasterEgg]);
 
-  const updatePressedKeys = ({ key, action }: { key: string; action: "add" | "remove" }) => {
-    if (action === "add") {
-      setPressedKeys((prevKeys) => [...prevKeys, key]);
-      return;
-    }
+  useEventListener("keyup", () => {
     setTimeout(() => {
-      setPressedKeys((prevKeys) => prevKeys.filter((k) => k != key));
-    }, 75);
-  };
-
-  useEventListener("keyup", (e) => {
-    if (!(e instanceof KeyboardEvent)) return;
-    let pressedKey = e.key;
-    const replace: Record<string, string> = {
-      Backspace: "DEL",
-      Enter: "=",
-      c: "C",
-    };
-    if (pressedKey in replace) {
-      pressedKey = replace[pressedKey];
-    }
-    updatePressedKeys({ key: pressedKey, action: "remove" });
+      setPressedKeys([]);
+    }, 100);
   });
 
   useEventListener("keydown", (e) => {
@@ -55,7 +37,7 @@ export const Calculator = () => {
     if (pressedKey in replace) {
       pressedKey = replace[pressedKey];
     }
-    updatePressedKeys({ key: pressedKey, action: "add" });
+    setPressedKeys((prevKeys) => [...prevKeys, pressedKey]);
     handleCalculatorButtonClick(pressedKey);
   });
 
@@ -241,7 +223,7 @@ export const Calculator = () => {
             </Tooltip.Trigger>
             <Tooltip.Portal>
               <Tooltip.Content
-                className="bg-slate-900 text-white flex gap-2 items-center rounded-full px-4 py-2 text-sm leading-none"
+                className="bg-slate-900 text-white shadow-md flex gap-2 items-center rounded-full px-4 py-2 text-sm leading-none"
                 sideOffset={5}
                 side="bottom"
               >

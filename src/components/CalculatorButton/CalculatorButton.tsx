@@ -17,8 +17,10 @@ export const CalculatorButton = ({ value, color, afterClick, pressedKeys }: Prop
   return (
     <button
       onClick={handleButtonClick}
-      className={`${color ? "text-blue-300" : "text-slate-900"} ${
-        isHighlighted ? "bg-blue-300 text-white" : color ? "text-blue-300" : "text-slate-900"
+      className={`${isHighlighted ? "transition-none" : "transition-colors"} ${
+        color && !isHighlighted ? "text-blue-300" : "text-slate-900"
+      } ${
+        isHighlighted ? "bg-blue-300 text-white fill-white" : color ? "text-blue-300" : "text-slate-900"
       } ${buttonClasses}`}
     >
       {formatValue(value)}

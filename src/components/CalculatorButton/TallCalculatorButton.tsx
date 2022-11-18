@@ -16,7 +16,8 @@ export const TallCalculatorButton = ({ value, afterClick, pressedKeys }: Props) 
   return (
     <button
       onClick={handleButtonClick}
-      className={`${isHighlighted ? "bg-blue-300 text-white" : "bg-sky-200 text-blue-500"} row-span-2 ${buttonClasses}`}
+      className={`${isHighlighted ? "transition-none" : "transition-colors"}
+      ${isHighlighted ? "bg-violet-300 text-white" : "bg-violet-200 text-violet-500"} row-span-2 ${buttonClasses}`}
     >
       {formatValue(value)}
     </button>
