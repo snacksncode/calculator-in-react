@@ -1,14 +1,17 @@
-# Simple calculator in React
+Quick links
 
-## Technologies used
+- [Technologies used](#technologies-used)
+- [Features and todo](#features-and-todo)
+
+# Technologies used
 
 - React
 - TypeScript
 - Vite
 - Vercel
-- TailWind
+- Tailwind
 
-## Todo
+# Features and todo
 
 - [x] Host it
 - [x] Write UI
