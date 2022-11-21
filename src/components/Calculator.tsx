@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DIGITS, OPERATORS, SPECIAL } from "@/constants/calculator";
 import { useEventListener } from "usehooks-ts";
 import { useEasterEggs } from "@/hooks/useEasterEggs";
@@ -6,6 +6,7 @@ import { CalculatorButtons } from "@/components/CalculatorButtons";
 import { Display } from "@/components/Display";
 import { History } from "@/types/calculator";
 import * as Tooltip from "@radix-ui/react-tooltip";
+import FocusTrap from "focus-trap-react";
 
 export const Calculator = () => {
   const [firstNumber, setFirstNumber] = useState("0");
@@ -15,27 +16,35 @@ export const Calculator = () => {
   const [pressedKeys, setPressedKeys] = useState<string[]>([]);
   const { easterEgg, checkForEasterEgg } = useEasterEggs({ value: answer });
   const [history, setHistory] = useState<History[]>([]);
+  const [isHistoryOpened, setIsHistoryOpened] = useState(false);
+  const historyContainerRef = useRef<HTMLDivElement>(null);
+  const openHistoryButtonRef = useRef<HTMLDivElement>(null);
+  const shouldIgnoreKeyboardEvents = [historyContainerRef, openHistoryButtonRef].some((elementRef) => {
+    return elementRef.current?.contains(document.activeElement);
+  });
 
   useEffect(() => {
     checkForEasterEgg();
   }, [answer, checkForEasterEgg]);
 
   useEventListener("keyup", () => {
-    setTimeout(() => {
-      setPressedKeys([]);
-    }, 100);
+    setPressedKeys([]);
   });
 
   useEventListener("keydown", (e) => {
-    if (!(e instanceof KeyboardEvent)) return;
+    if (!(e instanceof KeyboardEvent) || shouldIgnoreKeyboardEvents) return;
     let pressedKey = e.key;
     const replace: Record<string, string> = {
       Backspace: "DEL",
       Enter: "=",
-      c: "C",
+      c: "AC",
+      ",": ".",
     };
     if (pressedKey in replace) {
       pressedKey = replace[pressedKey];
+    }
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
     }
     setPressedKeys((prevKeys) => [...prevKeys, pressedKey]);
     handleCalculatorButtonClick(pressedKey);
@@ -167,7 +176,7 @@ export const Calculator = () => {
     if (specialSign === ".") {
       return handleDot();
     }
-    if (specialSign === "C") {
+    if (specialSign === "AC") {
       return reset();
     }
     if (specialSign === "=") {
@@ -204,13 +213,47 @@ export const Calculator = () => {
     }
   };
 
+  const openHistory = () => setIsHistoryOpened(true);
+  const closeHistory = () => setIsHistoryOpened(false);
+
   return (
-    <div className="flex w-[20rem] min-w-[20rem] min-h-[600px] flex-col bg-white shadow-2xl rounded-2xl overflow-hidden">
-      <div className="hidden sm:flex items-center justify-center">
+    <div className="relative flex w-[20rem] min-h-[600px] flex-col bg-white shadow-2xl rounded-2xl overflow-hidden">
+      {isHistoryOpened && (
+        <FocusTrap>
+          <div
+            ref={historyContainerRef}
+            className="text-slate-900 opacity-75 h-full w-full z-10 top-0 absolute bg-blue-50"
+          >
+            <div>
+              <button onClick={closeHistory}>Close</button>
+            </div>
+            <div>
+              <button onClick={closeHistory}>Another button</button>
+            </div>
+            <div>
+              <button onClick={closeHistory}>And another one</button>
+            </div>
+            History:
+            {history.map(({ firstNumber, secondNumber, operator, answer }, index) => {
+              return (
+                <div key={`${firstNumber}_${secondNumber}_${operator}_${answer}_${index}`}>
+                  <button>
+                    {firstNumber} {operator} {secondNumber} = {answer}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </FocusTrap>
+      )}
+      <div ref={openHistoryButtonRef} className="hidden sm:flex items-center justify-center">
         <Tooltip.Provider>
           <Tooltip.Root>
             <Tooltip.Trigger asChild>
-              <button className="text-xs bg-slate-100 gap-1 mt-2 self-center flex items-center justify-center px-4 py-1 rounded-full text-slate-900">
+              <button
+                onClick={openHistory}
+                className="text-xs bg-slate-100 gap-1 mt-2 self-center flex items-center justify-center px-4 py-1 rounded-full text-slate-900"
+              >
                 History
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                   <path
@@ -223,12 +266,15 @@ export const Calculator = () => {
             </Tooltip.Trigger>
             <Tooltip.Portal>
               <Tooltip.Content
+                onEscapeKeyDown={(e) => e.preventDefault()}
                 className="bg-slate-900 text-white shadow-md flex gap-2 items-center rounded-full px-4 py-2 text-sm leading-none"
                 sideOffset={5}
                 side="bottom"
               >
                 History of past calculations
-                <div className="text-xs py-1 px-2 bg-blue-100 text-blue-500 rounded-sm leading-none">Coming soon</div>
+                <div className="text-xs py-1 px-2 bg-violet-100 text-violet-500 rounded-sm leading-none">
+                  Coming soon
+                </div>
                 <Tooltip.Arrow className="fill-slate-900" />
               </Tooltip.Content>
             </Tooltip.Portal>

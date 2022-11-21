@@ -28,6 +28,9 @@ Quick links
   - [x] Work with the answer instead of locking up
 - [ ] History of operations
   - [ ] Record history of operations
+  - [ ] Use history to implement repeating equals
   - [ ] Allow user to see it and interact with it (time travel)
 - [ ] Add animations using framer-motion
 - [ ] Add themes
+  - [ ] Add Dark Theme
+  - [ ] Add Settings to change accent color
