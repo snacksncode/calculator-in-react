@@ -4,3 +4,5 @@ export type History = {
   operator: string;
   answer: string;
 };
+
+export type ButtonLocation = { rowIdx: number; columnIdx: number };

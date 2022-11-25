@@ -1,11 +1,29 @@
 import { useIsHighlighted } from "@/hooks/useIsHighlighted";
+import {
+  FC,
+  FocusEvent,
+  FocusEventHandler,
+  RefObject,
+  useEffect,
+  useRef,
+} from "react";
 
 interface Props {
   value: string;
   colored?: boolean;
   bgColored?: boolean;
   pressedKeys: string[];
-  afterClick: (value: string) => void;
+  location: { rowIdx: number; columnIdx: number };
+  onClick: (value: string) => void;
+  onFocus: (
+    e: FocusEvent<HTMLButtonElement, Element>,
+    location: { rowIdx: number; columnIdx: number }
+  ) => void;
+  init: (
+    rowIdx: number,
+    columnIdx: number,
+    ref: RefObject<HTMLButtonElement>
+  ) => void;
 }
 
 export const formatValue = (value: string) => {
@@ -103,17 +121,21 @@ export const formatValue = (value: string) => {
   }
 };
 
-export const CalculatorButton = ({
+export const CalculatorButton: FC<Props> = ({
   value,
-  afterClick,
+  onClick,
   pressedKeys,
   colored = false,
   bgColored = false,
-}: Props) => {
-  const handleButtonClick: React.MouseEventHandler<HTMLButtonElement> = () => {
-    afterClick(value);
+  onFocus,
+  location: { columnIdx, rowIdx },
+  init,
+}) => {
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = () => {
+    onClick(value);
   };
   const { isHighlighted } = useIsHighlighted({ value, pressedKeys });
+  const ref = useRef<HTMLButtonElement>(null);
 
   const getColors = () => {
     if (isHighlighted) {
@@ -127,12 +149,26 @@ export const CalculatorButton = ({
     }
   };
 
+  const handleFocus: FocusEventHandler<HTMLButtonElement> = (e) => {
+    onFocus(e, { rowIdx, columnIdx });
+  };
+
+  useEffect(() => {
+    if (ref.current == null) return;
+    init(rowIdx, columnIdx, ref);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ref]);
+
   return (
     <button
-      onClick={handleButtonClick}
+      ref={ref}
+      onFocus={handleFocus}
+      onClick={handleClick}
       className={`flex items-center justify-center rounded-full p-3 text-2xl font-medium leading-none transition-colors ${getColors()}`}
     >
       {formatValue(value)}
     </button>
   );
 };
+
+CalculatorButton.displayName = "CalculatorButton";
