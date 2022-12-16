@@ -420,7 +420,10 @@ export const Calculator = () => {
           <div className="absolute top-0 z-10 flex h-full w-full flex-col gap-4 bg-slate-100 p-5 text-slate-900">
             <div className="flex items-start justify-between">
               <h2 className="text-2xl font-bold">History</h2>
-              <button onClick={closeHistory}>
+              <button
+                onClick={closeHistory}
+                className="focus-visible:outline-violet-500"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -463,7 +466,7 @@ export const Calculator = () => {
                             );
                             closeHistory(e);
                           }}
-                          className="rounded-md bg-white px-4 py-2 text-right shadow"
+                          className="rounded-md border-2 border-white bg-white px-4 py-2 text-right shadow focus-visible:outline-violet-500"
                         >
                           <div className="text-sm text-violet-500">
                             {firstNumber} {operator} {secondNumber} =
@@ -505,7 +508,7 @@ export const Calculator = () => {
       )}
       <button
         onClick={openHistory}
-        className="mt-2 flex items-center justify-center gap-1 self-center rounded-full bg-slate-100 px-4 py-1 text-xs text-slate-900"
+        className="mt-2 flex items-center justify-center gap-1 self-center rounded-full bg-slate-100 px-4 py-1 text-xs text-slate-900 focus-visible:outline-violet-500"
       >
         History
         <svg

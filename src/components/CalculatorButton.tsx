@@ -164,7 +164,7 @@ export const CalculatorButton: FC<Props> = ({
       ref={ref}
       onFocus={handleFocus}
       onClick={handleClick}
-      className={`flex items-center justify-center rounded-full p-3 text-2xl font-medium leading-none transition-colors ${getColors()}`}
+      className={`flex items-center justify-center rounded-full p-3 text-2xl font-medium leading-none transition-colors focus-visible:outline-violet-500 ${getColors()}`}
     >
       {formatValue(value)}
     </button>
