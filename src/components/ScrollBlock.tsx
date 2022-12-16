@@ -1,35 +1,39 @@
-import { FC, PropsWithChildren, useLayoutEffect, useRef } from "react";
+import { FC, PropsWithChildren } from "react";
 import * as ScrollAreaRadix from "@radix-ui/react-scroll-area";
+import type { ScrollAreaScrollbarProps } from "@radix-ui/react-scroll-area";
 
 interface Props {
   theme: "light" | "dark";
   className?: string;
+  orientation?: ScrollAreaScrollbarProps["orientation"];
+  forceChildAlignEnd?: boolean;
 }
 
 export const ScrollBlock: FC<PropsWithChildren<Props>> = ({
   children,
   className,
   theme,
+  orientation = "horizontal",
+  forceChildAlignEnd = false,
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const valueContainer = ref.current?.querySelector("div");
-
-  useLayoutEffect(() => {
-    if (valueContainer == null) return;
-    valueContainer.scrollIntoView({ inline: "end" });
-  });
-
   return (
-    <ScrollAreaRadix.Root type="always" className={className}>
-      <ScrollAreaRadix.Viewport ref={ref}>{children}</ScrollAreaRadix.Viewport>
+    <ScrollAreaRadix.Root type="hover" className={className}>
+      <ScrollAreaRadix.Viewport
+        className={forceChildAlignEnd ? "flex flex-row items-end" : ""}
+      >
+        <div style={{ display: "block" }} className="min-w-full">
+          {children}
+        </div>
+      </ScrollAreaRadix.Viewport>
       <ScrollAreaRadix.Scrollbar
-        className="mx-1 mb-1 flex h-2 p-[2px]"
-        orientation="horizontal"
+        className={`flex min-h-[4px] min-w-[4px]`}
+        orientation={orientation}
       >
         <ScrollAreaRadix.Thumb
-          className={`h-3 ${
-            theme === "light" ? "bg-white" : "bg-neutral-600"
-          } rounded-full opacity-75`}
+          className={`
+          ${orientation === "horizontal" ? "" : "flex-1"}
+          ${theme === "light" ? "bg-white" : "bg-neutral-600"}
+          rounded-full opacity-75`}
         />
       </ScrollAreaRadix.Scrollbar>
       <ScrollAreaRadix.Corner />

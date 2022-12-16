@@ -44,12 +44,20 @@ export const Display: FC<Props> = ({
   return (
     <div className="relative isolate mb-2  flex flex-1 flex-col items-end justify-end px-5">
       <div className="max-w-full rounded text-right font-bold text-slate-800">
-        <div className="text-right text-base font-medium text-blue-400 opacity-80">
-          <ScrollBlock theme="dark" className="whitespace-nowrap pb-2">
+        <div className="text-right text-base font-medium text-violet-500 opacity-80">
+          <ScrollBlock
+            theme="dark"
+            className="overflow-hidden whitespace-nowrap pb-2"
+            forceChildAlignEnd
+          >
             {expression}
           </ScrollBlock>
         </div>
-        <ScrollBlock theme="dark" className="min-h-[56px] pb-2 text-5xl">
+        <ScrollBlock
+          theme="dark"
+          className="min-h-[56px] overflow-hidden pb-2 text-end text-5xl"
+          forceChildAlignEnd
+        >
           {mainDisplay}
         </ScrollBlock>
       </div>

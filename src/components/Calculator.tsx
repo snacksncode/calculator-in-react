@@ -1,8 +1,8 @@
 import {
   createRef,
   FocusEvent,
+  MouseEvent,
   MouseEventHandler,
-  PointerEventHandler,
   RefObject,
   useRef,
   useState,
@@ -13,6 +13,7 @@ import { CalculatorButtons } from "@/components/CalculatorButtons";
 import { Display } from "@/components/Display";
 import { ButtonLocation, History } from "@/types/calculator";
 import FocusTrap from "focus-trap-react";
+import { ScrollBlock } from "@/components/ScrollBlock";
 
 // {} - colored
 // [] - bgColored
@@ -57,16 +58,27 @@ export const Calculator = () => {
   });
 
   useEventListener("keydown", (e) => {
-    if (!(e instanceof KeyboardEvent) || isHistoryOpened) return;
-
     let pressedKey = e.key;
+
+    if (pressedKey === "Escape" && isHistoryOpened) {
+      closeHistory(e);
+      return;
+    }
+
+    if (
+      !(e instanceof KeyboardEvent) ||
+      isHistoryOpened ||
+      e.ctrlKey ||
+      e.altKey
+    )
+      return;
+
     if (!calculatorContainerRef.current?.contains(document.activeElement)) {
       const replace: Record<string, string> = {
         Backspace: "DEL",
         Delete: "AC",
-        Escape: "AC",
-        Enter: "=",
         c: "AC",
+        Enter: "=",
         ",": ".",
       };
 
@@ -112,7 +124,6 @@ export const Calculator = () => {
     const replace: Record<string, string> = {
       Backspace: "DEL",
       Delete: "AC",
-      Escape: "AC",
       c: "AC",
       ",": ".",
     };
@@ -361,7 +372,11 @@ export const Calculator = () => {
   const openHistory: MouseEventHandler = () => {
     setIsHistoryOpened(true);
   };
-  const closeHistory: MouseEventHandler<HTMLButtonElement> = (e) => {
+  const closeHistory = (e: MouseEvent<HTMLButtonElement> | KeyboardEvent) => {
+    if (e instanceof KeyboardEvent) {
+      setIsHistoryOpened(false);
+      return;
+    }
     const isKeyboard = e.detail === 0;
     if (!isKeyboard && document.activeElement instanceof HTMLElement) {
       shouldClearFocusAfterHistoryClose.current = true;
@@ -378,6 +393,18 @@ export const Calculator = () => {
     }
   };
 
+  const applyState = (
+    firstNumber: string,
+    secondNumber: string,
+    operator: string,
+    answer: string
+  ) => {
+    setFirstNumber(firstNumber);
+    setSecondNumber(secondNumber);
+    setOperator(operator);
+    setAnswer(answer);
+  };
+
   return (
     <div
       ref={calculatorContainerRef}
@@ -385,24 +412,93 @@ export const Calculator = () => {
     >
       {isHistoryOpened && (
         <FocusTrap
-          focusTrapOptions={{ onPostDeactivate: handleAfterHistoryClosed }}
+          focusTrapOptions={{
+            escapeDeactivates: false,
+            onPostDeactivate: handleAfterHistoryClosed,
+          }}
         >
-          <div className="absolute top-0 z-10 h-full w-full bg-blue-50 text-slate-900 opacity-75">
-            <div>
-              <button onClick={closeHistory}>Close</button>
+          <div className="absolute top-0 z-10 flex h-full w-full flex-col gap-4 bg-slate-100 p-5 text-slate-900">
+            <div className="flex items-start justify-between">
+              <h2 className="text-2xl font-bold">History</h2>
+              <button onClick={closeHistory}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={3}
+                  stroke="currentColor"
+                  className="h-8 w-8 p-1"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
             </div>
-            History:
-            {history.map(
-              ({ firstNumber, secondNumber, operator, answer }, index) => {
-                const key = `${firstNumber}_${secondNumber}_${operator}_${answer}_${index}`;
-                return (
-                  <div key={key}>
-                    <button>
-                      {firstNumber} {operator} {secondNumber} = {answer}
-                    </button>
-                  </div>
-                );
-              }
+
+            {history.length > 0 ? (
+              <ScrollBlock
+                theme="dark"
+                orientation="vertical"
+                className="flex flex-1 flex-col overflow-hidden"
+              >
+                <div className="flex flex-1 flex-col gap-2 pb-1">
+                  {history.map(
+                    (
+                      { firstNumber, secondNumber, operator, answer },
+                      index
+                    ) => {
+                      const key = `${firstNumber}_${secondNumber}_${operator}_${answer}_${index}`;
+                      return (
+                        <button
+                          key={key}
+                          onClick={(e) => {
+                            applyState(
+                              firstNumber,
+                              secondNumber,
+                              operator,
+                              answer
+                            );
+                            closeHistory(e);
+                          }}
+                          className="rounded-md bg-white px-4 py-2 text-right shadow"
+                        >
+                          <div className="text-sm text-violet-500">
+                            {firstNumber} {operator} {secondNumber} =
+                          </div>
+                          <div className="text-2xl">{answer}</div>
+                        </button>
+                      );
+                    }
+                  )}
+                </div>
+              </ScrollBlock>
+            ) : (
+              <div className="flex flex-1 flex-col items-center justify-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="h-14 w-14"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"
+                  />
+                </svg>
+                <h2 className="mb-2 text-xl">Nothing found</h2>
+                <button
+                  onClick={closeHistory}
+                  className="mb-8 rounded-full bg-violet-200 px-6 py-2 text-sm text-violet-500 duration-75 hover:bg-violet-400 hover:text-white"
+                >
+                  Start calculating
+                </button>
+              </div>
             )}
           </div>
         </FocusTrap>
